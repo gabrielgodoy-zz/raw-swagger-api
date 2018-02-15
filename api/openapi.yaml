@@ -1,0 +1,212 @@
+openapi: 3.0.0
+servers: []
+info:
+  description:  |
+    Example API
+
+  version: "0.0.1"
+  title: Stone API
+security:
+  - BasicAuth: []
+tags:
+  - name: Resources
+    description: Endpoints to manage some resources
+
+paths:
+  /v1/some-resource:
+    get:
+      summary: Lists all resources
+      tags:
+        - Resources
+      operationId: listResources
+      description: |
+        Lists all resources
+      parameters:
+        - $ref: '#/components/parameters/someParameter'
+      responses:
+        '200':
+          description: |
+            Returns all resources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SomeResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/ReferenceKeyConflict'
+    post:
+      summary: Creates a new resource
+      tags:
+        - Resources
+      operationId: startResource
+      description: |
+        Creates a new resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SomeResource'
+      responses:
+        '200':
+          description: |
+            The resource was created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resource_id:
+                    $ref: '#/components/schemas/Id'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/ReferenceKeyConflict'
+  /v1/some-resource/{resource_id}:
+    put:
+      summary: Change one of the resources
+      tags: 
+        - Resources
+      operationId: putResource
+      description: |
+        Change resource status
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SomeResource'
+      responses:
+        '200':
+          description: Successful status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  availability_status:
+                      type: string
+                      enum:
+                      - locked
+                      - unlocked
+                  resource_status:
+                      type: string
+                      enum:
+                      - active
+                      - written_off_by_settlement
+                      - written_off_by_charge_back
+                      - written_off_by_split
+                  settlement_status:
+                      type: string
+                      enum:
+                      - pending
+                      - settled 
+                      - failed
+                      - processing
+                      - cancelled
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/BadRequest'
+    get:
+      summary: Returns information about a resource
+      tags:
+        - Resources
+      operationId: getResource
+      responses:
+        '200':
+          description: A resource has been found with this ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SomeResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  parameters:
+    someParameter:
+      name: someParameter
+      in: query
+      description: Filter resources by ID
+      schema:
+        type: string
+
+  responses:
+    ValidationError:
+      description: There were some errors in the request data or the state of the application
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - errors
+            properties:
+              errors:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - error_type
+                    - error
+                  properties:
+                    field:
+                      type: string
+                      description:
+                        If this error is on any specific field, like a validation error, the
+                        specific json path where the error ocurred will be here
+                      example: "some.json[0].path"
+                    error:
+                      type: string
+                      example: "A validation error message"
+    BadRequest:
+      description: The request could not be understood by the server due to malformed syntax
+    Unauthorized:
+      description: Credentials are missing or invalid
+    Forbidden:
+      description: You don't have rights to execute this action
+    NotFound:
+      description: Resource was not found
+    ReferenceKeyConflict:
+      description: The given reference key already exist, but was used with different arguments before
+  schemas:
+    Date:
+      type: string
+      format: date
+      example: '2018-01-01'
+    Id:
+      type: string
+      example: '123'
+    SomeResource:
+      type: object
+      required:
+        - some_status
+      properties:
+        id:
+          type: string
+          example: "123"
+          description: "Some ID"
+        some_status:
+          type: string
+          enum:
+            - pending
+            - settled 
+            - failed
+            - processing
+            - cancelled
+          description: "Status of a resource"
