@@ -5,7 +5,7 @@ info:
     Example API
 
   version: "0.0.1"
-  title: Stone API
+  title: API
 security:
   - BasicAuth: []
 tags:
@@ -73,7 +73,7 @@ paths:
   /v1/some-resource/{resource_id}:
     put:
       summary: Change one of the resources
-      tags: 
+      tags:
         - Resources
       operationId: putResource
       description: |
@@ -100,17 +100,7 @@ paths:
                       type: string
                       enum:
                       - active
-                      - written_off_by_settlement
-                      - written_off_by_charge_back
-                      - written_off_by_split
-                  settlement_status:
-                      type: string
-                      enum:
-                      - pending
-                      - settled 
-                      - failed
-                      - processing
-                      - cancelled
+                      - inactive
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -205,7 +195,6 @@ components:
           type: string
           enum:
             - pending
-            - settled 
             - failed
             - processing
             - cancelled
